@@ -1,0 +1,50 @@
+ORGANIZATION_BLOCK "OB1"
+TITLE = Main Program Cycle
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+
+VAR_TEMP
+      RawAnalog : Int;
+      ScaledValue : Real;
+      HI : Real;
+      LOW : Real;
+      OUTPUT : Real;
+      StartPB : Bool;
+      StopPB : Bool;
+      Overload : Bool;
+      Temperature : Real;
+      MotorOutput : Bool;
+      AlarmOutput : Bool;
+END_VAR
+
+BEGIN
+
+NETWORK
+TITLE = Read Analog Input
+// Read raw analog value from peripheral input word
+      L     PIW256;            // Peripheral Input Word
+      T     #RawAnalog;
+
+NETWORK
+TITLE = Scale analog value
+// Call FC1 (Analog Scaling) to scale raw analog value to engineering units using standard library function
+      CALL "Analog Scaling"
+      (  IN                          := #RawAnalog ,
+         HI_LIM                      := #HI ,
+         LO_LIM                      := #LOW ,
+         OUT                         := #OUTPUT
+      );
+
+NETWORK
+TITLE = Call Function Block with Scaled Value
+// Call FB1 (Motor Control) with scaled analog value and other inputs, and map outputs to peripheral output bits
+      CALL "Motor Control", "Motor Control_DB"
+      (  StartPB                     := #StartPB ,
+         StopPB                      := #StopPB ,
+         Overload                    := #Overload ,
+         Temperature                 := #Temperature ,
+         MotorOutput                 := #MotorOutput ,
+         AlarmOutput                 := #AlarmOutput
+      );
+
+END_ORGANIZATION_BLOCK

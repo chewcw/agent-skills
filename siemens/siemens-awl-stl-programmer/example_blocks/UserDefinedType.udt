@@ -1,0 +1,8 @@
+TYPE "UDT_MOTOR"
+VERSION : 0.1
+   STRUCT
+      RUN_FEEDBACK : Bool;
+      SPEED : Real;
+   END_STRUCT;
+
+END_TYPE
