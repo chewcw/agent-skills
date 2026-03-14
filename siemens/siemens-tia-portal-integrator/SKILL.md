@@ -147,8 +147,9 @@ Use the **Python scripts** only when MCP file tools are unavailable or when cust
 
 1. **Verify session first** — call `projects_get_session_info` before any write.
 2. **Validate before writing** — run column validation and catalog checks before the first MCP write.
-3. **One MCP call per item** — loop individually; no bulk payloads.
-4. **Save after each batch** — call `projects_save` after every successful write batch.
-5. **Compile after block changes** — always call `compilation_software` after uploading sources.
-6. **Delegate code generation** — never write AWL inline; invoke `siemens-awl-stl-programmer` skill.
-7. **Continue on single failures** — collect all failures and report at the end, do not abort early.
+3. **Ask on ambiguity** — if a requirement or target (device, sheet, table, mapping, action) is unclear or missing, ask the user before proceeding; do not assume.
+4. **One MCP call per item** — loop individually; no bulk payloads.
+5. **Save after each batch** — call `projects_save` after every successful write batch.
+6. **Compile after block changes** — always call `compilation_software` after uploading sources.
+7. **Delegate code generation** — never write AWL inline; invoke `siemens-awl-stl-programmer` skill.
+8. **Continue on single failures** — collect all failures and report at the end, do not abort early.
