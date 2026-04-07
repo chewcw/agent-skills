@@ -38,10 +38,7 @@ First row must be a header row. Required and optional columns:
 
 ### 1. Read and validate the sheet
 
-```
-files_list_sheets(filePath="<path>")
-files_read_excel(filePath="<path>", sheetName="<sheet>")
-```
+Read the Excel file and list worksheets if multiple exist.
 
 ```python
 result = validate_columns(
@@ -53,18 +50,15 @@ result = validate_columns(
 
 ---
 
-### 2. Verify TIA Portal session
+### 2. Verify TIA Portal session and identify device
 
-```
-projects_get_session_info()
-devices_list()   ← confirm target device
-```
+Confirm a TIA Portal project is open. Identify the target device for block creation.
 
 ---
 
-### 3. For each row: build spec and invoke siemens-awl-stl-programmer skill
+### 3. For each row: generate STL code
 
-Construct a natural-language specification string from the row columns:
+Construct a natural-language specification from the row columns:
 
 ```python
 spec = f"""
@@ -77,12 +71,14 @@ Logic      : {row.get('LogicDescription', 'implement basic structure')}
 """
 ```
 
-Pass `spec` to the **siemens-awl-stl-programmer** skill.  
+Pass `spec` to the **siemens-awl-stl-programmer** skill.
 Receive back complete AWL source text.
 
 ---
 
 ### 4. Write AWL source to a temp file
+
+Save the generated AWL source to a temporary file:
 
 ```python
 source_path = f"/tmp/{row['BlockName']}.awl"
@@ -94,40 +90,22 @@ with open(source_path, "w") as f:
 
 ### 5. Upload source to TIA Portal
 
-```
-blocks_external_source_add(
-    deviceName = "<device>",
-    sourcePath = "/tmp/<BlockName>.awl"
-)
-```
+Add the external source file to the project and compile it into a block.
+
+If compilation returns errors → present compiler output to user; do not proceed to save.
 
 ---
 
-### 6. Compile source into a TIA block
-
-```
-blocks_source_generate(
-    deviceName = "<device>",
-    sourceName = "<BlockName>"
-)
-```
-
-If compilation returns errors → present compiler output to user; do not proceed to `projects_save`.
-
----
-
-### 7. Compile full software and save
+### 6. Compile and save
 
 After all blocks are uploaded:
 
-```
-compilation_software(deviceName="<device>")
-projects_save()
-```
+1. Compile the software for the target device
+2. Save the project
 
 ---
 
-### 8. Report
+### 7. Report
 
 ```
 ✓ Block generation completed
@@ -153,7 +131,7 @@ Next steps:
 | Situation | Agent Action |
 |---|---|
 | Missing block_name or block_type column | Stop; report to user |
-| siemens-awl-stl-programmer returns empty | Retry with more detailed spec; report if still failing |
-| blocks_external_source_add fails | Log; skip block; continue loop |
-| blocks_source_generate compile error | Show output; do not save; ask user to review |
-| No TIA Portal session | Call `projects_open` or instruct user |
+| STL generation returns empty | Retry with more detailed spec; report if still failing |
+| External source upload fails | Log; skip block; continue loop |
+| Block compilation error | Show output; do not save; ask user to review |
+| No TIA Portal session | Open project or instruct user |

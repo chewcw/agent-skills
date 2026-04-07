@@ -15,26 +15,15 @@ Import PLC tags from a CSV or Excel file into a tag table in a live TIA Portal p
 
 ### 1. Read the file
 
-**Prefer MCP tools** when available:
+Read the source file (CSV or Excel) to extract tag data.
 
-```
-files_read_csv(filePath="<path>", delimiter=",")
-```
-
-or for Excel:
-
-```
-files_list_sheets(filePath="<path>")   ← ask user to pick sheet if > 1
-files_read_excel(filePath="<path>", sheetName="<sheet>")
-```
-
-Fall back to `scripts/read_csv.md` or `scripts/read_excel.md` if MCP tools are unavailable.
+Use available file I/O tools. Fall back to `../scripts/read_csv.md` or `../scripts/read_excel.md` if needed.
 
 ---
 
 ### 2. Validate columns
 
-Call `validate_columns()` (see `scripts/validate_columns.md`):
+Ensure the file contains the required columns for tag import. See `../scripts/validate_columns.md`:
 
 ```python
 result = validate_columns(
@@ -44,49 +33,29 @@ result = validate_columns(
 )
 ```
 
-If `result["valid"]` is `False` → report missing columns to user and stop.  
+If `result["valid"]` is `False` → report missing columns to user and stop.
 If warnings exist → note optional fields are absent and continue.
 
 ---
 
 ### 3. Verify TIA Portal session
 
-```
-projects_get_session_info()
-```
-
-If no session → call `projects_open()` or instruct the user to open a project.
+Confirm a TIA Portal project is open and accessible. If no session is active, open the project or instruct the user.
 
 ---
 
 ### 4. Resolve target device and tag table
 
-```
-devices_list()
-```
+Identify the target device and tag table.
 
-Ask user which device to target if not already specified.
-
-```
-tags_tagtable_list(deviceName="<device>")
-```
-
-- If target table exists → proceed
-- If target table does not exist → offer to create it:
-
-```
-tags_tagtable_create(deviceName="<device>", tagTableName="<name>")
-```
+- If the target table exists → proceed
+- If the target table does not exist → offer to create it
 
 ---
 
 ### 5. Check for duplicates (optional but recommended)
 
-```
-tags_list(deviceName="<device>", tagTableName="<table>")
-```
-
-Compare existing tag names with import rows. Report conflicts and ask:
+Retrieve existing tags from the target tag table. Compare existing tag names with import rows. Report conflicts and ask:
 - Skip duplicates (recommended default)
 - Overwrite (if supported)
 - Abort
@@ -95,6 +64,13 @@ Compare existing tag names with import rows. Report conflicts and ask:
 
 ### 6. Create tags (loop)
 
+For each row in the import data:
+
+1. Extract tag name, data type, address, and comment
+2. Apply validation rules (see Validation Rules below)
+3. Create the tag in the target tag table
+4. Continue on individual failures — do not abort the loop
+
 ```python
 created, failed = [], []
 mapping = result["mapping"]
@@ -102,27 +78,17 @@ mapping = result["mapping"]
 for row in rows:
     tag_name = row[mapping["tag_name"]]
     try:
-        tags_create(
-            deviceName     = device,
-            tagTableName   = table,
-            tagName        = tag_name,
-            dataType       = row[mapping["data_type"]],
-            logicalAddress = row.get(mapping.get("logical_address", ""), ""),
-        )
+        # Create tag with: name, data_type, address, comment
         created.append(tag_name)
     except Exception as e:
         failed.append({"tag": tag_name, "error": str(e)})
 ```
 
-Continue on individual failures — do not abort the loop.
-
 ---
 
 ### 7. Save and report
 
-```
-projects_save()
-```
+Save the project after all tags have been processed.
 
 Report summary:
 
@@ -138,7 +104,7 @@ Failed:
 
 Next steps:
   - Review failed tags
-  - Compile software: compilation_software(deviceName="PLC_1")
+  - Compile software
 ```
 
 ---
@@ -159,8 +125,8 @@ Next steps:
 |---|---|
 | File not found | Report path; ask user to verify |
 | Missing required column | Show found columns; ask for correct mapping |
-| No TIA Portal session | Call `projects_open` or instruct user |
+| No TIA Portal session | Open project or instruct user |
 | Device not found | List available devices; ask user to choose |
-| Tag table not found | Offer to create it with `tags_tagtable_create` |
+| Tag table not found | Offer to create it |
 | Tag already exists | Skip with warning; continue loop |
 | Invalid data type | Suggest correct capitalisation; skip row |

@@ -13,9 +13,7 @@ Demonstrates Pattern A end-to-end.
 
 **Agent step 1 — Read file**
 
-```
-files_read_csv(filePath="io_list.csv", delimiter=",")
-```
+Read the CSV file to extract tag data.
 
 Result:
 ```
@@ -52,9 +50,7 @@ Result:
 
 **Agent step 3 — Verify session**
 
-```
-projects_get_session_info()
-```
+Verify TIA Portal session is active.
 
 Result: Session active, project "Plant_A" open.
 
@@ -62,9 +58,7 @@ Result: Session active, project "Plant_A" open.
 
 **Agent step 4 — Confirm tag table**
 
-```
-tags_tagtable_list(deviceName="PLC_1")
-```
+List tag tables for device PLC_1.
 
 Result: `["GlobalTags", "Safety_Tags"]` — GlobalTags exists ✓
 
@@ -72,9 +66,7 @@ Result: `["GlobalTags", "Safety_Tags"]` — GlobalTags exists ✓
 
 **Agent step 5 — Check for duplicates**
 
-```
-tags_list(deviceName="PLC_1", tagTableName="GlobalTags")
-```
+List existing tags in GlobalTags.
 
 Result: 12 existing tags — none conflict with the 42 import rows ✓
 
@@ -82,22 +74,15 @@ Result: 12 existing tags — none conflict with the 42 import rows ✓
 
 **Agent step 6 — Create tags (loop × 42)**
 
-```
-tags_create(deviceName="PLC_1", tagTableName="GlobalTags",
-            tagName="Motor1_Start", dataType="Bool", logicalAddress="%I0.0")
-…
-tags_create(…  tagName="Motor1_Start" …)   ← row 27: DUPLICATE — already added in row 1
-```
+Create each tag in the target tag table.
 
-Row 27 fails — agent logs and continues.
+Row 27: Motor1_Start — Tag already exists in table → skipped with warning.
 
 ---
 
 **Agent step 7 — Save**
 
-```
-projects_save()
-```
+Save the project.
 
 ---
 
@@ -117,5 +102,5 @@ Recommendation:
   - Remove duplicate row from io_list.csv
 
 Next steps:
-  - Compile software: compilation_software(deviceName="PLC_1")
+  - Compile software
 ```

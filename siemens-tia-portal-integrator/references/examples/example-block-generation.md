@@ -14,9 +14,7 @@ Demonstrates Pattern C end-to-end, including delegation to the
 
 **Agent step 1 — List sheets**
 
-```
-files_list_sheets(filePath="blocks_spec.xlsx")
-```
+List worksheets in the Excel file.
 
 Result: `["FB_Specs", "FC_Specs"]`
 
@@ -32,9 +30,7 @@ User: "Process FB_Specs first."
 
 **Agent step 2 — Read sheet**
 
-```
-files_read_excel(filePath="blocks_spec.xlsx", sheetName="FB_Specs")
-```
+Read the FB_Specs worksheet.
 
 Result: 3 rows
 
@@ -62,18 +58,15 @@ Result: all resolved ✓
 
 **Agent step 4 — Verify session and device**
 
-```
-projects_get_session_info()   → Plant_A open ✓
-devices_list()                → ["PLC_1", "HMI_1"]
-```
+Verify TIA Portal session is active. List available devices.
 
-Using `PLC_1` as specified.
+Result: `PLC_1` available as specified.
 
 ---
 
 **Agent step 5 — Row 1: PumpControl**
 
-Build spec:
+Build spec and delegate to siemens-awl-stl-programmer:
 ```
 Block name : PumpControl
 Block type : FB
@@ -83,12 +76,7 @@ Static vars: RunLatch:BOOL
 Logic      : Latch on RunCmd, reset on Fault
 ```
 
-→ Delegate to **siemens-awl-stl-programmer** skill → receive AWL source → write to `/tmp/PumpControl.awl`
-
-```
-blocks_external_source_add(deviceName="PLC_1", sourcePath="/tmp/PumpControl.awl")
-blocks_source_generate(deviceName="PLC_1", sourceName="PumpControl")
-```
+→ Generate AWL source → save to `/tmp/PumpControl.awl` → upload and compile
 
 Result: compiled ✓
 
@@ -96,12 +84,7 @@ Result: compiled ✓
 
 **Agent step 5 — Row 2: ValveControl**
 
-→ Delegate to **siemens-awl-stl-programmer** → write to `/tmp/ValveControl.awl`
-
-```
-blocks_external_source_add(deviceName="PLC_1", sourcePath="/tmp/ValveControl.awl")
-blocks_source_generate(deviceName="PLC_1", sourceName="ValveControl")
-```
+→ Generate AWL source → save to `/tmp/ValveControl.awl` → upload and compile
 
 Result: compiled with 2 warnings:
 ```
@@ -115,12 +98,7 @@ Agent notes warnings but continues (non-fatal).
 
 **Agent step 5 — Row 3: ConveyorDrive**
 
-→ Delegate to **siemens-awl-stl-programmer** → write to `/tmp/ConveyorDrive.awl`
-
-```
-blocks_external_source_add(deviceName="PLC_1", sourcePath="/tmp/ConveyorDrive.awl")
-blocks_source_generate(deviceName="PLC_1", sourceName="ConveyorDrive")
-```
+→ Generate AWL source → save to `/tmp/ConveyorDrive.awl` → upload and compile
 
 Result: compiled ✓
 
@@ -128,10 +106,7 @@ Result: compiled ✓
 
 **Agent step 6 — Full software compile and save**
 
-```
-compilation_software(deviceName="PLC_1")
-projects_save()
-```
+Compile software for PLC_1 and save the project.
 
 Result: 0 errors, 2 warnings (same ValveControl warnings as above).
 

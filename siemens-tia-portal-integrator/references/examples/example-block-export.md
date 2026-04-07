@@ -13,9 +13,7 @@ Demonstrates Pattern D end-to-end.
 
 **Agent step 1 — Verify session**
 
-```
-projects_get_session_info()
-```
+Verify TIA Portal session is active.
 
 Result: project "Plant_A" open, session active ✓
 
@@ -23,9 +21,7 @@ Result: project "Plant_A" open, session active ✓
 
 **Agent step 2 — List blocks**
 
-```
-blocks_list(deviceName="PLC_1")
-```
+List all PLC blocks in PLC_1.
 
 Result: 9 blocks
 
@@ -47,11 +43,8 @@ Result: 9 blocks
 
 For each non-DB block:
 
-```
-blocks_source_generate_from_block(deviceName="PLC_1", blockName="FB10", blockType="FB")
-```
-
-Parse `VAR_INPUT` and `VAR_OUTPUT` sections using regex.
+1. Generate source text from the block
+2. Parse `VAR_INPUT` and `VAR_OUTPUT` sections
 
 DB blocks are noted with `InputCount=0, OutputCount=0` — no VAR_INPUT/OUTPUT in data blocks.
 
@@ -85,13 +78,7 @@ rows = [
 
 **Agent step 5 — Write Excel**
 
-```python
-write_summary(
-    rows     = rows,
-    headers  = ["BlockName","BlockType","InputCount","OutputCount","Inputs","Outputs"],
-    filepath = "/tmp/Plant_A_Block_Inventory.xlsx",
-)
-```
+Write the summary rows to an Excel file.
 
 ---
 

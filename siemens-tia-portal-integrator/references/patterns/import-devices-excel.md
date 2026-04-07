@@ -16,9 +16,7 @@ catalog, and create devices in a live TIA Portal project.
 
 ### 1. List and pick sheet
 
-```
-files_list_sheets(filePath="<path>")
-```
+List available worksheets in the Excel file.
 
 - Single sheet → use automatically
 - Multiple sheets → ask user which sheet contains device data
@@ -27,9 +25,7 @@ files_list_sheets(filePath="<path>")
 
 ### 2. Read the sheet
 
-```
-files_read_excel(filePath="<path>", sheetName="<sheet>")
-```
+Read the selected worksheet to extract device data.
 
 ---
 
@@ -49,22 +45,16 @@ If `result["valid"]` is `False` → stop and report missing columns.
 
 ### 4. Pre-validate order numbers
 
-Before creating any device, validate all order numbers against the hardware catalog:
-
-```
-devices_search_catalog(query="<order_number>")   ← once per row
-```
-
-Collect results:
+Before creating any device, validate all order numbers against the hardware catalog.
 
 ```python
 valid_rows   = []
 invalid_rows = []
 
 for row in rows:
-    result = devices_search_catalog(query=row[order_number_col])
-    if result["count"] > 0:
-        valid_rows.append({**row, "typeIdentifier": result["results"][0]["typeIdentifier"]})
+    catalog_result = search_hardware_catalog(query=row[order_number_col])
+    if catalog_result["count"] > 0:
+        valid_rows.append({**row, "typeIdentifier": catalog_result["results"][0]["typeIdentifier"]})
     else:
         invalid_rows.append(row)
 ```
@@ -75,24 +65,24 @@ If any invalid rows → report to user and ask whether to continue with valid ro
 
 ### 5. Verify TIA Portal session
 
-```
-projects_get_session_info()
-```
+Confirm a TIA Portal project is open and accessible.
 
 ---
 
 ### 6. Create devices (loop)
+
+For each valid row:
+
+1. Extract device name, order number, and position
+2. Create the device in the project
+3. Continue on individual failures — do not abort the loop
 
 ```python
 created, failed = [], []
 
 for row in valid_rows:
     try:
-        devices_create(
-            deviceName  = row[device_name_col],
-            orderNumber = row[order_number_col],
-            position    = row.get(position_col, ""),
-        )
+        # Create device with: name, order_number, position
         created.append(row[device_name_col])
     except Exception as e:
         failed.append({"device": row[device_name_col], "error": str(e)})
@@ -102,9 +92,7 @@ for row in valid_rows:
 
 ### 7. Save and report
 
-```
-projects_save()
-```
+Save the project after all devices have been created.
 
 ```
 ✓ Device import completed
@@ -122,8 +110,8 @@ Created devices:
 
 Next steps:
   - Configure Profinet/Profibus network topology
-  - Add device modules with deviceitems_plug_new
-  - Compile hardware: compilation_project()
+  - Add device modules
+  - Compile hardware
 ```
 
 ---
@@ -136,5 +124,5 @@ Next steps:
 | Missing required column | Show found columns; ask user to map |
 | Order number not in catalog | Warn; ask whether to skip or abort |
 | Duplicate device name | Warn; offer auto-rename or skip |
-| No TIA Portal session | Call `projects_open` or instruct user |
+| No TIA Portal session | Open project or instruct user |
 | Device creation fails | Log error; continue loop |

@@ -16,10 +16,7 @@ to a formatted Excel file for documentation or review.
 
 ### 1. Verify session and resolve device
 
-```
-projects_get_session_info()
-devices_list()
-```
+Confirm a TIA Portal project is open and accessible.
 
 Ask user which device to export if not specified.
 
@@ -27,11 +24,7 @@ Ask user which device to export if not specified.
 
 ### 2. List all blocks
 
-```
-blocks_list(deviceName="<device>")
-```
-
-Returns a list of block objects with at minimum: `name`, `type` (OB / FB / FC / DB).
+Retrieve the list of all PLC blocks in the target device. Each block should include `name` and `type` (OB / FB / FC / DB).
 
 ---
 
@@ -39,17 +32,10 @@ Returns a list of block objects with at minimum: `name`, `type` (OB / FB / FC / 
 
 For each block where you need variable signatures:
 
-```
-blocks_source_generate_from_block(
-    deviceName = "<device>",
-    blockName  = "<name>",
-    blockType  = "<type>"
-)
-```
+1. Generate source text from the block
+2. Parse the source to extract `VAR_INPUT`, `VAR_OUTPUT`, `VAR_IN_OUT`, `VAR` sections
 
-Parse the returned AWL source to extract `VAR_INPUT`, `VAR_OUTPUT`, `VAR_IN_OUT`, `VAR` sections.
-
-**Simple regex for variable sections:**
+**Regex for variable sections:**
 
 ```python
 import re
@@ -74,7 +60,7 @@ def extract_var_section(awl_source: str, section: str) -> list[str]:
 ```python
 rows = []
 for block in blocks:
-    awl    = blocks_source_generate_from_block(deviceName, block["name"], block["type"])
+    awl    = generate_source_from_block(deviceName, block["name"], block["type"])
     inputs = extract_var_section(awl, "VAR_INPUT")
     outputs= extract_var_section(awl, "VAR_OUTPUT")
     rows.append({
@@ -91,7 +77,7 @@ for block in blocks:
 
 ### 5. Write to Excel
 
-Use `scripts/write_excel_summary.md`:
+Use `../scripts/write_excel_summary.md`:
 
 ```python
 write_summary(
@@ -123,7 +109,7 @@ Note: DB blocks do not have VAR_INPUT/OUTPUT sections — InputCount/OutputCount
 
 | Situation | Agent Action |
 |---|---|
-| No TIA Portal session | Call `projects_open` or instruct user |
-| blocks_source_generate_from_block fails for a block | Log; insert empty row; continue loop |
-| openpyxl not installed | Run `pip install openpyxl --break-system-packages` |
+| No TIA Portal session | Open project or instruct user |
+| Source generation fails for a block | Log; insert empty row; continue loop |
+| openpyxl not installed | Install required package |
 | Output directory not writable | Try `/tmp/` as fallback |

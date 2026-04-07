@@ -1,6 +1,8 @@
 ---
 name: siemens-awl-stl-programmer
 description: Generate Siemens S7-300/S7-400/S7-1500 Statement List (STL/AWL) programs compatible with Step7 Classic and TIA Portal. Use this skill whenever the user asks to write, generate, create, or modify any PLC logic, function blocks, organization blocks, data blocks, or control programs in STL/AWL format. Also trigger for any questions about Siemens S7 memory addressing, timers, counters, accumulators, block structure, or Step7/TIA Portal imports. Always use this skill even if the user just mentions "STL", "AWL", "Step7", "TIA Portal", "S7-300", "S7-400", "S7-1500", "PLC block", "OB", "FB", "FC", or "DB".
+metadata:
+  version: "1.0"
 ---
 
 # Siemens S7 STL (AWL) Programming Skill

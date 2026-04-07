@@ -13,9 +13,7 @@ Demonstrates Pattern B end-to-end.
 
 **Agent step 1 — List sheets**
 
-```
-files_list_sheets(filePath="hardware_list.xlsx")
-```
+List worksheets in the Excel file.
 
 Result: `["Devices"]` — single sheet, used automatically.
 
@@ -23,9 +21,7 @@ Result: `["Devices"]` — single sheet, used automatically.
 
 **Agent step 2 — Read sheet**
 
-```
-files_read_excel(filePath="hardware_list.xlsx", sheetName="Devices")
-```
+Read the Devices worksheet.
 
 Result: 8 rows — headers: `[DeviceName, OrderNumber, Position, Comment]`
 
@@ -47,15 +43,17 @@ Result: all columns resolved ✓
 
 **Agent step 4 — Pre-validate order numbers (× 8)**
 
+Search hardware catalog for each order number:
+
 ```
-devices_search_catalog(query="6ES7 516-3AN02-0AB0")  → found: CPU 1516-3 PN/DP  ✓
-devices_search_catalog(query="6AV2 124-0MC01-0AX0")  → found: Comfort Panel 15"  ✓
-devices_search_catalog(query="6ES7 193-6BP20-0BA0")  → found: ET200SP Interface  ✓
-devices_search_catalog(query="6ES7 134-6HD00-0BA1")  → found: Digital Input      ✓
-devices_search_catalog(query="6GK5 208-0BA00-2AC2")  → found: Scalance X208      ✓
-devices_search_catalog(query="6ES7 155-6AU01-0BN0")  → found: ET200SP IM         ✓
-devices_search_catalog(query="6ES7 132-6BH01-0BA0")  → found: DQ 8x24VDC         ✓
-devices_search_catalog(query="6ES7 999-0000-0AB0")   → NOT FOUND                 ✗
+6ES7 516-3AN02-0AB0  → found: CPU 1516-3 PN/DP  ✓
+6AV2 124-0MC01-0AX0  → found: Comfort Panel 15"  ✓
+6ES7 193-6BP20-0BA0  → found: ET200SP Interface  ✓
+6ES7 134-6HD00-0BA1  → found: Digital Input       ✓
+6GK5 208-0BA00-2AC2  → found: Scalance X208       ✓
+6ES7 155-6AU01-0BN0  → found: ET200SP IM          ✓
+6ES7 132-6BH01-0BA0  → found: DQ 8x24VDC         ✓
+6ES7 999-0000-0AB0   → NOT FOUND                  ✗
 ```
 
 ---
@@ -81,9 +79,7 @@ Continue importing the 7 valid devices?
 
 **Agent step 5 — Verify session**
 
-```
-projects_get_session_info()
-```
+Verify TIA Portal session is active.
 
 Session active ✓
 
@@ -91,15 +87,7 @@ Session active ✓
 
 **Agent step 6 — Create devices (loop × 7)**
 
-```
-devices_create(deviceName="PLC_1",      orderNumber="6ES7 516-3AN02-0AB0", position="Rack_1")
-devices_create(deviceName="HMI_1",      orderNumber="6AV2 124-0MC01-0AX0", position="Panel_1")
-devices_create(deviceName="IO_Dev_1",   orderNumber="6ES7 193-6BP20-0BA0", position="Rack_2")
-devices_create(deviceName="DI_Mod_1",   orderNumber="6ES7 134-6HD00-0BA1", position="Rack_2_Slot1")
-devices_create(deviceName="Switch_1",   orderNumber="6GK5 208-0BA00-2AC2", position="Network")
-devices_create(deviceName="IO_Dev_2",   orderNumber="6ES7 155-6AU01-0BN0", position="Rack_3")
-devices_create(deviceName="DQ_Mod_1",   orderNumber="6ES7 132-6BH01-0BA0", position="Rack_3_Slot1")
-```
+Create each device in the project.
 
 All 7 succeed ✓
 
@@ -107,9 +95,7 @@ All 7 succeed ✓
 
 **Agent step 7 — Save**
 
-```
-projects_save()
-```
+Save the project.
 
 ---
 
@@ -134,5 +120,5 @@ Created devices:
 Next steps:
   - Fix order number for IO_Ext_1 and re-run import for that row
   - Configure Profinet topology
-  - Compile hardware: compilation_project()
+  - Compile hardware
 ```
