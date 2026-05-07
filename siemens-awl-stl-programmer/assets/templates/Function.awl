@@ -1,19 +1,18 @@
 ﻿FUNCTION "Analog Scaling" : Void
 { S7_Optimized_Access := 'TRUE' }
-NAME : '1'
 VERSION : 0.1
    VAR_INPUT
-      IN : Int;
-      HI_LIM : Real;
-      LO_LIM : Real;
+      IN : INT;
+      HI_LIM : REAL;
+      LO_LIM : REAL;
    END_VAR
 
    VAR_OUTPUT
-      OUT : Real;
+      OUT : REAL;
    END_VAR
 
    VAR_TEMP
-      TempReal : Real;
+      TempReal : REAL;
    END_VAR
 
 

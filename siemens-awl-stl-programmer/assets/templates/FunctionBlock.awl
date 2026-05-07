@@ -1,6 +1,5 @@
 FUNCTION_BLOCK "Motor Control"
 { S7_Optimized_Access := 'TRUE' }
-NAME : '1'
 VERSION : 0.1
 
 VAR_INPUT

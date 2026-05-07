@@ -4,17 +4,13 @@ TITLE = Main Program Cycle
 VERSION : 0.1
 
 VAR_TEMP
-      RawAnalog : Int;
-      ScaledValue : Real;
-      HI : Real;
-      LOW : Real;
-      OUTPUT : Real;
-      StartPB : Bool;
-      StopPB : Bool;
-      Overload : Bool;
-      Temperature : Real;
-      MotorOutput : Bool;
-      AlarmOutput : Bool;
+      RawAnalog   : INT;
+      ScaledValue : REAL;
+      StartPB     : BOOL;
+      StopPB      : BOOL;
+      Overload    : BOOL;
+      MotorOutput : BOOL;
+      AlarmOutput : BOOL;
 END_VAR
 
 BEGIN
@@ -26,23 +22,21 @@ TITLE = Read Analog Input
       T     #RawAnalog;
 
 NETWORK
-TITLE = Scale analog value
-// Call FC1 (Analog Scaling) to scale raw analog value to engineering units using standard library function
+TITLE = Scale Analog Input
       CALL "Analog Scaling"
       (  IN                          := #RawAnalog ,
-         HI_LIM                      := #HI ,
-         LO_LIM                      := #LOW ,
-         OUT                         := #OUTPUT
+         HI_LIM                      := 100.0 ,
+         LO_LIM                      := 0.0 ,
+         OUT                         := #ScaledValue
       );
 
 NETWORK
-TITLE = Call Function Block with Scaled Value
-// Call FB1 (Motor Control) with scaled analog value and other inputs, and map outputs to peripheral output bits
+TITLE = Call Motor Control FB
       CALL "Motor Control", "Motor Control_DB"
       (  StartPB                     := #StartPB ,
          StopPB                      := #StopPB ,
          Overload                    := #Overload ,
-         Temperature                 := #Temperature ,
+         Temperature                 := #ScaledValue ,
          MotorOutput                 := #MotorOutput ,
          AlarmOutput                 := #AlarmOutput
       );
